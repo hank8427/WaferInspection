@@ -19,5 +19,6 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         public string SourceFolder { get; set; }
         public string SenderFolder { get; set; }
         public string ReceiverFolder { get; set; }
+        public string SharedFolder { get; set; }
     }
 }

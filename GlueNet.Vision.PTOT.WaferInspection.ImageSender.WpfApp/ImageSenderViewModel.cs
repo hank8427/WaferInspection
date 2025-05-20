@@ -10,7 +10,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 {
     public class ImageSenderViewModel : INotifyPropertyChanged
     {
-        public int ColumnNumber { get; set; } = 17;
+        public int RowNumber { get; set; } = 17;
         public ImageDownloader ImageDownloader { get; set; }
         public TcpImageClient TcpImageClient { get; set; }
 
@@ -20,7 +20,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
         {
             ImageDownloader = new ImageDownloader();
 
-            ImageDownloader.SetColumnNumber(ColumnNumber);
+            ImageDownloader.SetRowNumber(RowNumber);
 
             var folderToMonitor = AppSettingsMgt.AppSettings.TcpConnectionSetting.SenderFolder;
 

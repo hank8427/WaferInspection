@@ -47,9 +47,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
             ImageSenderViewModel.ImageDownloader.StopMonitor();
         }
 
-        private void SetColumnCount_OnClick(object sender, RoutedEventArgs e)
+        private void SetRowCount_OnClick(object sender, RoutedEventArgs e)
         {
-            ImageSenderViewModel.ImageDownloader.SetColumnNumber(ImageSenderViewModel.ColumnNumber);
+            ImageSenderViewModel.ImageDownloader.SetRowNumber(ImageSenderViewModel.RowNumber);
         }
     }
 }

@@ -96,6 +96,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp\GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp.csproj">
+      <Project>{950F3447-37CF-456A-AEEC-DEBE2067514E}</Project>
+      <Name>GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GlueNet.Vision.PTOT.WaferInspection\GlueNet.Vision.PTOT.WaferInspection.csproj">
       <Project>{20b26da6-2794-4a2f-9719-fb84997806c3}</Project>
       <Name>GlueNet.Vision.PTOT.WaferInspection</Name>

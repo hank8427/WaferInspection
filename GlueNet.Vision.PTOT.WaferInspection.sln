@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlueNet.Vision.PTOT.WaferInspection", "GlueNet.Vision.PTOT.WaferInspection\GlueNet.Vision.PTOT.WaferInspection.csproj", "{20B26DA6-2794-4A2F-9719-FB84997806C3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{316692D7-A7A8-4965-820C-7204D081F3CB} = {316692D7-A7A8-4965-820C-7204D081F3CB}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp", "GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp\GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp.csproj", "{950F3447-37CF-456A-AEEC-DEBE2067514E}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -15,24 +18,48 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlueNet.Vision.PTOT.WaferIn
 		{20B26DA6-2794-4A2F-9719-FB84997806C3} = {20B26DA6-2794-4A2F-9719-FB84997806C3}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlueNet.VisionAI.Recognitions.Aidi", "..\..\GlueNetProjects\GlueNet.VisionAI.Recognitions.Aidi\GlueNet.VisionAI.Recognitions.Aidi\GlueNet.VisionAI.Recognitions.Aidi.csproj", "{316692D7-A7A8-4965-820C-7204D081F3CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{20B26DA6-2794-4A2F-9719-FB84997806C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{20B26DA6-2794-4A2F-9719-FB84997806C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20B26DA6-2794-4A2F-9719-FB84997806C3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{20B26DA6-2794-4A2F-9719-FB84997806C3}.Debug|x64.Build.0 = Debug|Any CPU
 		{20B26DA6-2794-4A2F-9719-FB84997806C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20B26DA6-2794-4A2F-9719-FB84997806C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20B26DA6-2794-4A2F-9719-FB84997806C3}.Release|x64.ActiveCfg = Release|Any CPU
+		{20B26DA6-2794-4A2F-9719-FB84997806C3}.Release|x64.Build.0 = Release|Any CPU
 		{950F3447-37CF-456A-AEEC-DEBE2067514E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{950F3447-37CF-456A-AEEC-DEBE2067514E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{950F3447-37CF-456A-AEEC-DEBE2067514E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{950F3447-37CF-456A-AEEC-DEBE2067514E}.Debug|x64.Build.0 = Debug|Any CPU
 		{950F3447-37CF-456A-AEEC-DEBE2067514E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{950F3447-37CF-456A-AEEC-DEBE2067514E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{950F3447-37CF-456A-AEEC-DEBE2067514E}.Release|x64.ActiveCfg = Release|Any CPU
+		{950F3447-37CF-456A-AEEC-DEBE2067514E}.Release|x64.Build.0 = Release|Any CPU
 		{37D273B0-93B4-41B0-822E-354A2A903C20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{37D273B0-93B4-41B0-822E-354A2A903C20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37D273B0-93B4-41B0-822E-354A2A903C20}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{37D273B0-93B4-41B0-822E-354A2A903C20}.Debug|x64.Build.0 = Debug|Any CPU
 		{37D273B0-93B4-41B0-822E-354A2A903C20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37D273B0-93B4-41B0-822E-354A2A903C20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37D273B0-93B4-41B0-822E-354A2A903C20}.Release|x64.ActiveCfg = Release|Any CPU
+		{37D273B0-93B4-41B0-822E-354A2A903C20}.Release|x64.Build.0 = Release|Any CPU
+		{316692D7-A7A8-4965-820C-7204D081F3CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{316692D7-A7A8-4965-820C-7204D081F3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{316692D7-A7A8-4965-820C-7204D081F3CB}.Debug|x64.ActiveCfg = Debug|x64
+		{316692D7-A7A8-4965-820C-7204D081F3CB}.Debug|x64.Build.0 = Debug|x64
+		{316692D7-A7A8-4965-820C-7204D081F3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{316692D7-A7A8-4965-820C-7204D081F3CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{316692D7-A7A8-4965-820C-7204D081F3CB}.Release|x64.ActiveCfg = Release|x64
+		{316692D7-A7A8-4965-820C-7204D081F3CB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

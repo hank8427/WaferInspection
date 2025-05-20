@@ -21,7 +21,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
         private int myTotalImageCount;
 
-        private int myColumnNumber;
+        private int myRowNumber;
 
         private ManualResetEvent myManualResetEvent = new ManualResetEvent(false);
         public ObservableCollection<string> ImageFiles { get; set; }
@@ -98,9 +98,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             return false;
         }
 
-        public void SetColumnNumber(int columnNumber)
+        public void SetRowNumber(int rowNumber)
         {
-            myColumnNumber = columnNumber;
+            myRowNumber = rowNumber;
         }
 
         public void ScanFolder()
@@ -132,14 +132,14 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             if (parseInt)
             {
                 myTotalImageCount += 1;
-                var row = myTotalImageCount / myColumnNumber;
+                var row = myTotalImageCount / myRowNumber;
 
-                if (myTotalImageCount % myColumnNumber == 0)
+                if (myTotalImageCount % myRowNumber == 0)
                 {
                     row -= 1;
                 }
 
-                fileName = (row * myColumnNumber + fileNumber).ToString() + ".bmp";
+                fileName = (row * myRowNumber + fileNumber).ToString() + ".bmp";
             }
             else
             {

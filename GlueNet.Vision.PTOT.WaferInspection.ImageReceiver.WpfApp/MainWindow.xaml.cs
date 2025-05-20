@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,17 +13,28 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp;
 
 namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 {
     /// <summary>
     /// MainWindow.xaml 的互動邏輯
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public ImageReceiverViewModel ImageReceiverViewModel { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
         public MainWindow()
         {
             InitializeComponent();
+
+            ImageReceiverViewModel = new ImageReceiverViewModel();
+        }
+
+        private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            await ImageReceiverViewModel.AiDetector.Initialize();
         }
     }
 }
