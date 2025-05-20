@@ -22,9 +22,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 
             ImageDownloader.SetRowNumber(RowNumber);
 
-            var folderToMonitor = AppSettingsMgt.AppSettings.TcpConnectionSetting.SenderFolder;
+            //var folderToMonitor = AppSettingsMgt.AppSettings.TcpConnectionSetting.SenderFolder;
 
-            TcpImageClient = new TcpImageClient(folderToMonitor);
+            //TcpImageClient = new TcpImageClient(folderToMonitor);
         }
     }
 }

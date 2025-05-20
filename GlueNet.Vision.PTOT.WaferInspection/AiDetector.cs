@@ -32,9 +32,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             await CreateRecognitionPipeline(ProjectPath);
         }
 
-        public async Task Run(string folderPath)
+        public async Task Run(string file)
         {
-            await DetectImage(folderPath);
+            await DetectImage(file);
         }
 
         private async Task CreateRecognitionPipeline(string projectPath)
@@ -44,24 +44,30 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             await myAidiRecognitionProject.InitializeAsync();
         }
 
-        private async Task DetectImage(string folder)
+        private async Task DetectImage(string file)
         {
-            var files = Directory.GetFiles(folder, "*.bmp");
+            var mat = new Mat(file);
 
-            foreach (var file in files)
+            myStopwatch.Stop();
+            Console.WriteLine($@"Create Mat Elapsed Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
+
+            myStopwatch.Restart();
+
+            var recognitionPipelineResult = await myAidiRecognitionProject.ExecuteAsync(mat.Clone(), new CancellationToken());
+
+            myStopwatch.Stop();
+            Console.WriteLine($@"Recognition Elapsed Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
+
+            int.TryParse(Path.GetFileNameWithoutExtension(file), out int index);
+
+            var dyeResult = new DyeResult
             {
-                var mat = new Mat(file);
-
-                myStopwatch.Stop();
-                Console.WriteLine($@"Create Mat Elapsed Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
-
-                myStopwatch.Restart();
-
-                var recognitionPipelineResult = await myAidiRecognitionProject.ExecuteAsync(mat.Clone(), new CancellationToken());
-
-                myStopwatch.Stop();
-                Console.WriteLine($@"Recognition Elapsed Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
-            }
+                Name = Path.GetFileName(file),
+                Row = index / 10,
+                Column = index % 10,
+                Section = 0,
+                AiDetectResult = recognitionPipelineResult.OperationResults.ToString()
+            };
         }
     }
 }
