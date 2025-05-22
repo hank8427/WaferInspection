@@ -34,13 +34,13 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
         private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            await ImageReceiverViewModel.AiDetector.Initialize();
+            //await ImageReceiverViewModel.AiDetector.Initialize();
         }
 
         private void SetSize_OnClick(object sender, RoutedEventArgs e)
         {
-            AppSettingsMgt.AppSettings.RowNumber = ImageReceiverViewModel.RowNumber;
-            AppSettingsMgt.AppSettings.ColumnNumber = ImageReceiverViewModel.ColumnNumber;
+            AppSettingsMgt.AppSettings.RowNumber = ImageReceiverViewModel.AiDetector.RowNumber;
+            AppSettingsMgt.AppSettings.ColumnNumber = ImageReceiverViewModel.AiDetector.ColumnNumber;
             AppSettingsMgt.Save();
         }
 

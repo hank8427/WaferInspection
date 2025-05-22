@@ -17,7 +17,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
     {
         //private string SenderFolder = AppSettingsMgt.AppSettings.TcpConnectionSetting.SenderFolder;
 
-        private string SharedFolder = AppSettingsMgt.AppSettings.SharedFolder;
+        private string mySharedFolder = AppSettingsMgt.AppSettings.SharedFolder;
 
         private int myTotalImageCount;
 
@@ -26,7 +26,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
         public ImageDownloader()
         {
-
+            var test = Directory.Exists(mySharedFolder);
         }
 
         public void SetRowNumber(int rowNumber)
@@ -58,7 +58,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                 MessageBox.Show("File name parse error");
             }
 
-            var fullPath = Path.Combine(SharedFolder, fileName);
+            var fullPath = Path.Combine(mySharedFolder, fileName);
 
             File.Copy(file, fullPath, true);
         }

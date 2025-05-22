@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         DataContext="{Binding ImageReceiverViewModel, RelativeSource={RelativeSource Self}}"
         Loaded="MainWindow_OnLoaded"
-        Title="MainWindow" Height="450" Width="900">
+        Title="MainWindow" Height="650" Width="900">
     <Grid>
         <Grid.Resources>
             <local:NumberConverter x:Key="NumberConverter"/>
@@ -26,13 +26,13 @@
             
         <WrapPanel Grid.Row="1">
             <TextBlock Text="Row Number: "  FontSize="30" Margin="5"/>
-            <TextBox Text="{Binding RowNumber, Converter={StaticResource NumberConverter}}" HorizontalContentAlignment="Center" Width="100" FontSize="30" Margin="5"/>
+            <TextBox Text="{Binding AiDetector.RowNumber, Converter={StaticResource NumberConverter}}" HorizontalContentAlignment="Center" Width="100" FontSize="30" Margin="5"/>
             <TextBlock Text="Column Number: " FontSize="30" Margin="5"/>
-            <TextBox Text="{Binding ColumnNumber, Converter={StaticResource NumberConverter}}" HorizontalContentAlignment="Center" Width="100" FontSize="30" Margin="5"/>
+            <TextBox Text="{Binding AiDetector.ColumnNumber, Converter={StaticResource NumberConverter}}" HorizontalContentAlignment="Center" Width="100" FontSize="30" Margin="5"/>
             <Button Content="Set" Click="SetSize_OnClick" Width="100" Height="40" FontSize="20"/>
         </WrapPanel>
 
-        <DataGrid Grid.Row="2" ItemsSource="{Binding DyeResultList}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10">
+        <DataGrid Grid.Row="2" ItemsSource="{Binding DyeResultList}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10" Height="350" VerticalScrollBarVisibility="Visible">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
                 <DataGridTextColumn Header="Section" Binding="{Binding Section}" Width="*"/>

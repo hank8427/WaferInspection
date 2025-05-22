@@ -22,9 +22,6 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         //public TcpImageServer TcpImageServer { get; set; }
 
         public AiDetector AiDetector { get; set; }
-        public int RowNumber { get; set; } = AppSettingsMgt.AppSettings.RowNumber;
-        public int ColumnNumber { get; set; } = AppSettingsMgt.AppSettings.ColumnNumber;
-
         public ObservableCollection<DyeResult> DyeResultList { get; set; }
         public ObservableCollection<string> ImageFiles { get; set; }
 
@@ -38,11 +35,14 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
             AiDetector = new AiDetector(projectPath);
 
-
             ImageFiles = new ObservableCollection<string>();
 
-            Task.Run(() =>
+            DyeResultList = new ObservableCollection<DyeResult>();
+
+            Task.Run(async() =>
             {
+                await AiDetector.Initialize();
+
                 while (true)
                 {
                     myManualResetEvent.WaitOne();
@@ -101,7 +101,10 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                     {
                         var dyeResult = await AiDetector.Run(file);
 
-                        DyeResultList.Add(dyeResult);
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            DyeResultList.Add(dyeResult);
+                        });
                     }
                 });
             }
