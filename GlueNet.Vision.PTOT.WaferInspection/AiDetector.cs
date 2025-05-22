@@ -32,19 +32,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             await CreateRecognitionPipeline(ProjectPath);
         }
 
-        public async Task Run(string file)
-        {
-            await DetectImage(file);
-        }
-
-        private async Task CreateRecognitionPipeline(string projectPath)
-        {
-            myAidiRecognitionProject = new AidiRecognitionProject();
-            myAidiRecognitionProject.ProjectPath = projectPath;
-            await myAidiRecognitionProject.InitializeAsync();
-        }
-
-        private async Task DetectImage(string file)
+        public async Task<DyeResult> Run(string file)
         {
             var mat = new Mat(file);
 
@@ -68,6 +56,15 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                 Section = 0,
                 AiDetectResult = recognitionPipelineResult.OperationResults.ToString()
             };
+
+            return dyeResult;
+        }
+
+        private async Task CreateRecognitionPipeline(string projectPath)
+        {
+            myAidiRecognitionProject = new AidiRecognitionProject();
+            myAidiRecognitionProject.ProjectPath = projectPath;
+            await myAidiRecognitionProject.InitializeAsync();
         }
     }
 }

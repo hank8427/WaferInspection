@@ -99,7 +99,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                     var isFileAvailable = WaitUntilFileIsReady(file, 1000);
                     if (File.Exists(file) && isFileAvailable)
                     {
-                        await AiDetector.Run(file);
+                        var dyeResult = await AiDetector.Run(file);
+
+                        DyeResultList.Add(dyeResult);
                     }
                 });
             }
