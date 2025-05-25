@@ -143,5 +143,20 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         {
             myManualResetEvent.Reset();
         }
+
+        public void ClearSharedFolder()
+        {
+            if (Directory.Exists(mySharedFolder))
+            {
+                var files = Directory.GetFiles(mySharedFolder, "*.bmp");
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+            }
+
+            ImageFiles.Clear();
+            DyeResultList.Clear();
+        }
     }
 }

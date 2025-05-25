@@ -56,7 +56,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
         private void ClearDyeResultList_OnClick(object sender, RoutedEventArgs e)
         {
-            ImageReceiverViewModel.DyeResultList.Clear();
+            ImageReceiverViewModel.ClearSharedFolder();
         }
     }
 }
