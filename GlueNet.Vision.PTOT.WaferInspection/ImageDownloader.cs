@@ -26,7 +26,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
         public ImageDownloader()
         {
-            var test = Directory.Exists(mySharedFolder);
+
         }
 
         public void SetRowNumber(int rowNumber)

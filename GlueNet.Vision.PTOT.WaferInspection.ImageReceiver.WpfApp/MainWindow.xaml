@@ -22,6 +22,7 @@
         <WrapPanel>
             <Button Content="Start Monitor" Click="StartMonitor_OnClick" Width="150" Height="50" FontSize="20" Margin="5"/>
             <Button Content="Stop Monitor" Click="StopMonitor_OnClick" Width="150" Height="50" FontSize="20" Margin="5"/>
+            <Button Content="Clear" Click="ClearDyeResultList_OnClick" Width="150" Height="50" FontSize="20" Margin="5"/>
         </WrapPanel>
             
         <WrapPanel Grid.Row="1">
@@ -38,6 +39,7 @@
                 <DataGridTextColumn Header="Section" Binding="{Binding Section}" Width="*"/>
                 <DataGridTextColumn Header="Column" Binding="{Binding Column}" Width="*"/>
                 <DataGridTextColumn Header="Row" Binding="{Binding Row}" Width="*"/>
+                <DataGridTextColumn Header="OK/NG" Binding="{Binding OKNG}" Width="*"/>
                 <DataGridTextColumn Header="AiDetectResult" Binding="{Binding AiDetectResult}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>

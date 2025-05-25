@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GlueNet.VisionAI.Recognitions.Aidi;
+using Newtonsoft.Json;
 using OpenCvSharp;
 
 namespace GlueNet.Vision.PTOT.WaferInspection
@@ -56,7 +57,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                 Row = index % RowNumber,
                 Column = index / RowNumber,
                 Section = index / RowNumber / ColumnNumber,
-                AiDetectResult = recognitionPipelineResult.OperationResults.ToString()
+                OKNG = recognitionPipelineResult.OperationResults.Count == 0 ? "OK" : "NG",
+                AiDetectResult = JsonConvert.SerializeObject(recognitionPipelineResult.OperationResults),
             };
 
             return dyeResult;

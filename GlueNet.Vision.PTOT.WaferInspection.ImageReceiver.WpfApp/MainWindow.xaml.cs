@@ -53,5 +53,10 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         {
             ImageReceiverViewModel.StopMonitor();
         }
+
+        private void ClearDyeResultList_OnClick(object sender, RoutedEventArgs e)
+        {
+            ImageReceiverViewModel.DyeResultList.Clear();
+        }
     }
 }
