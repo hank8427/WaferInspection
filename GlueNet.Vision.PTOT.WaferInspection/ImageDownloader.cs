@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -38,7 +39,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         {   
             var fileName = Path.GetFileNameWithoutExtension(file);
 
-            var parseInt = int.TryParse(fileName, out int fileNumber);
+            //var parseInt = int.TryParse(fileName, out int fileNumber);
+
+            var parseInt = GetNumberFromFileName(fileName, out int fileNumber);
 
             if (parseInt)
             {
@@ -66,6 +69,19 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         public void Clear()
         {
             myTotalImageCount = 0;
+        }
+
+        private bool GetNumberFromFileName(string fileName, out int fileNumber)
+        {
+            var match = Regex.Match(fileName, @"\d+");
+            if (match.Success)
+            {
+                fileNumber = int.Parse(match.Value);
+                return true;
+            }
+
+            fileNumber = -1;
+            return false;
         }
     }
 }
