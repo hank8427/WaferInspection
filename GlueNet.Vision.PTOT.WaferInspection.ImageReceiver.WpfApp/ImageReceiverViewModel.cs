@@ -17,6 +17,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
     {
         private string mySharedFolder = AppSettingsMgt.AppSettings.SharedFolder;
 
+        private string myArchiveFolder = AppSettingsMgt.AppSettings.ArchiveFolder;
+
         private ManualResetEvent myManualResetEvent = new ManualResetEvent(true);
 
         //public TcpImageServer TcpImageServer { get; set; }
@@ -56,7 +58,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                         Console.WriteLine(ex.Message);
                     }
 
-                    Task.Delay(100).Wait();
+                    Task.Delay(10).Wait();
                 }
             });
 
@@ -105,6 +107,14 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                         {
                             DyeResultList.Add(dyeResult);
                         });
+
+                        var fileName = $"{dyeResult.Name}_{dyeResult.Section}_{dyeResult.Column}_{dyeResult.Row}_{dyeResult.OKNG}.bmp";
+
+                        var fullPath = Path.Combine(myArchiveFolder, fileName);
+
+                        File.Copy(file, fullPath, true);
+
+                        CsvManager.AppendLog(dyeResult);
                     }
                 });
             }

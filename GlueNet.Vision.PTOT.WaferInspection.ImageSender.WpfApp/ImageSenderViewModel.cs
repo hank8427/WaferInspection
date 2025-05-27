@@ -16,10 +16,13 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 {
     public class ImageSenderViewModel : INotifyPropertyChanged
     {
+        private bool myIsFirstBatch = true;
+
         private string mySourceFolder = AppSettingsMgt.AppSettings.TcpConnectionSetting.SourceFolder;
 
-        private ManualResetEvent myManualResetEvent = new ManualResetEvent(true);
-        public int RowNumber { get; set; } = 17;
+        private ManualResetEvent myManualResetEvent = new ManualResetEvent(false);
+        public int RowNumber { get; set; } = AppSettingsMgt.AppSettings.RowNumber;
+        public int ColumnNumber { get; set; } = AppSettingsMgt.AppSettings.ColumnNumber;
         public ImageDownloader ImageDownloader { get; set; }
         public TcpImageClient TcpImageClient { get; set; }
 
@@ -50,7 +53,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
                         Console.WriteLine(ex.Message);
                     }
 
-                    Task.Delay(100).Wait();
+                    Task.Delay(10).Wait();
                 }
             });
         }
@@ -62,11 +65,15 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
                 return;
             }
 
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            if (e.Action == NotifyCollectionChangedAction.Add && !myIsFirstBatch)
             {
                 var newImageFiles = e.NewItems.Cast<string>().ToList();
 
-                newImageFiles.ForEach(file =>
+                var excludeFiles = e.NewItems.Cast<string>().Where(x=>x.Contains("-")).ToList();
+
+                var restFiles =  newImageFiles.Except(excludeFiles).ToList();
+
+                restFiles.ForEach(file =>
                 {
                     var isFileAvailable = WaitUntilFileIsReady(file, 1000);
                     if (File.Exists(file) && isFileAvailable)
@@ -107,16 +114,21 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
             {
                 var allFiles = Directory.GetFiles(mySourceFolder, "*.bmp");
 
-                var excepts = allFiles.Except(ImageDownloader.ImageFiles).ToList();
+                var excludeFiles = allFiles.Where(x => x.Contains("-")).ToList();
+
+                var restFiles = allFiles.Except(excludeFiles).ToList();
+
+                var excepts = restFiles.Except(ImageDownloader.ImageFiles).ToList();
 
                 foreach (string except in excepts)
                 {
                     ImageDownloader.ImageFiles.Add(except);
                 }
 
-                if (allFiles.Count() == 0)
+                if (restFiles.Count == 0)
                 {
                     ImageDownloader.ImageFiles.Clear();
+                    myIsFirstBatch = false;
                 }
             }
         }

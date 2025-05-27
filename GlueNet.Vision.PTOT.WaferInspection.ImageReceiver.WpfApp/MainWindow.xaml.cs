@@ -47,6 +47,10 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         private void StartMonitor_OnClick(object sender, RoutedEventArgs e)
         {
             ImageReceiverViewModel.StartMonitor();
+
+            var csvfolderPath = AppSettingsMgt.AppSettings.CsvOutputFolder;
+            var csvfilePath = $"{csvfolderPath}\\{DateTime.Now:yyyyMMddHHmmss}.csv";
+            CsvManager.CreateNewFile(csvfolderPath, csvfilePath);
         }
 
         private void StopMonitor_OnClick(object sender, RoutedEventArgs e)

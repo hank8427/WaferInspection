@@ -69,6 +69,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         public void Clear()
         {
             myTotalImageCount = 0;
+            ImageFiles.Clear();
         }
 
         private bool GetNumberFromFileName(string fileName, out int fileNumber)

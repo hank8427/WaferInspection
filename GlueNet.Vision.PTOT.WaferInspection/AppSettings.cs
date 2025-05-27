@@ -12,6 +12,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         public int RowNumber { get; set; }
         public int ColumnNumber { get; set; }
         public string SharedFolder { get; set; }
+        public string ArchiveFolder { get; set; }
+        public string CsvOutputFolder { get; set; }
         public TcpConnectionSetting TcpConnectionSetting { get; set; }
     }
 
@@ -22,5 +24,6 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         public string SourceFolder { get; set; }
         public string SenderFolder { get; set; }
         public string ReceiverFolder { get; set; }
+
     }
 }
