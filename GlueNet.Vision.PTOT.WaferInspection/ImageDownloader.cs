@@ -17,6 +17,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
     public class ImageDownloader
     {
         //private string SenderFolder = AppSettingsMgt.AppSettings.TcpConnectionSetting.SenderFolder;
+        private ObservableCollection<string> myCopyOKImageFiles { get; set; } = new ObservableCollection<string>();
 
         private string mySharedFolder = AppSettingsMgt.AppSettings.SharedFolder;
 
@@ -66,9 +67,103 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             File.Copy(file, fullPath, true);
         }
 
+        public async void DownloadAsync(string file)
+        {
+            try
+            {
+                if (!IsFileAccessible(file))
+                {
+                    return;
+                }
+
+                var fileName = Path.GetFileNameWithoutExtension(file);
+
+                var parseInt = GetNumberFromFileName(fileName, out int fileNumber);
+
+                if (parseInt)
+                {
+                    myTotalImageCount += 1;
+                    var row = myTotalImageCount / myRowNumber;
+
+                    if (myTotalImageCount % myRowNumber == 0)
+                    {
+                        row -= 1;
+                    }
+
+                    fileName = (row * myRowNumber + fileNumber).ToString() + ".bmp";
+                }
+                else
+                {
+                    throw new Exception("File name parse error");
+                }
+
+                ImageFiles.Add(file);
+
+                var fullPath = Path.Combine(mySharedFolder, fileName);
+
+                var targetDirectory = Path.GetDirectoryName(fullPath);
+                if (!Directory.Exists(targetDirectory))
+                {
+                    Directory.CreateDirectory(targetDirectory);
+                }
+
+                if (fileNumber == 0)
+                {
+                    throw new Exception("Download error");
+                }
+                else
+                {
+                    // 非同步複製檔案
+                    using (var sourceStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (var targetStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        await sourceStream.CopyToAsync(targetStream);
+                    }
+
+                    myCopyOKImageFiles.Add(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                ImageFiles.Remove(file);
+
+                myTotalImageCount -= 1;
+
+                Console.WriteLine($"Error downloading file {file}: {ex.Message}");
+            }
+        }
+
+        private bool IsFileAccessible(string filePath)
+        {
+            try
+            {
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    return true;
+                }
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
+        }
+
+
         public void Clear()
         {
             myTotalImageCount = 0;
+
+            myCopyOKImageFiles.Clear();
+            ImageFiles.Clear();
+        }
+
+        public void Reset()
+        {
+            myCopyOKImageFiles.Clear();
             ImageFiles.Clear();
         }
 

@@ -44,13 +44,15 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                         {
                             HasHeaderRecord = false,
-                            ShouldQuote = args => false
+                            ShouldQuote = args => true
                         };
 
                         using (var csv = new CsvWriter(writter, config))
-                        { 
-                            var content = $"{dyeResult.Name},{dyeResult.Section},{dyeResult.Column},{dyeResult.Row},{dyeResult.OKNG},{dyeResult.AiDetectResult}";
-                            csv.WriteField(content);
+                        {
+                            //var content = $"{dyeResult.Name},{dyeResult.Section},{dyeResult.Column},{dyeResult.Row},{dyeResult.OKNG},{dyeResult.AiDetectResult}";
+                            //csv.WriteField(content);
+
+                            csv.WriteRecord(dyeResult);
                             csv.NextRecord();
                         }
                     }

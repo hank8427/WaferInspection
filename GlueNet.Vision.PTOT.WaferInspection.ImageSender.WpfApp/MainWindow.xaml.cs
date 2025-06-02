@@ -34,7 +34,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 
         private void Clear_OnClick(object sender, RoutedEventArgs e)
         {
-            ImageSenderViewModel.ImageDownloader.Clear();
+            ImageSenderViewModel.Clear();
         }
 
         private void StartMonitor_OnClick(object sender, RoutedEventArgs e)

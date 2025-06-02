@@ -24,7 +24,6 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
         public int RowNumber { get; set; } = AppSettingsMgt.AppSettings.RowNumber;
         public int ColumnNumber { get; set; } = AppSettingsMgt.AppSettings.ColumnNumber;
         public ImageDownloader ImageDownloader { get; set; }
-        public TcpImageClient TcpImageClient { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -35,8 +34,6 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
             ImageDownloader.SetRowNumber(RowNumber);
 
             ImageDownloader.ImageFiles = new ObservableCollection<string>();
-
-            ImageDownloader.ImageFiles.CollectionChanged += ImageFiles_CollectionChanged;
 
             Task.Run(() =>
             {
@@ -53,59 +50,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
                         Console.WriteLine(ex.Message);
                     }
 
-                    Task.Delay(10).Wait();
+                    Task.Delay(1).Wait();
                 }
             });
-        }
-
-        private void ImageFiles_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (string.IsNullOrEmpty(mySourceFolder))
-            {
-                return;
-            }
-
-            if (e.Action == NotifyCollectionChangedAction.Add && !myIsFirstBatch)
-            {
-                var newImageFiles = e.NewItems.Cast<string>().ToList();
-
-                var excludeFiles = e.NewItems.Cast<string>().Where(x=>x.Contains("-")).ToList();
-
-                var restFiles =  newImageFiles.Except(excludeFiles).ToList();
-
-                restFiles.ForEach(file =>
-                {
-                    var isFileAvailable = WaitUntilFileIsReady(file, 1000);
-                    if (File.Exists(file) && isFileAvailable)
-                    {
-                        ImageDownloader.Download(file);
-                    }
-                });
-            }
-        }
-
-        private bool WaitUntilFileIsReady(string filePath, int timeoutMs = 1000)
-        {
-            var stopwatch = Stopwatch.StartNew();
-
-            while (stopwatch.ElapsedMilliseconds < timeoutMs)
-            {
-                try
-                {
-                    using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
-                    {
-                        return true;
-                    }
-                }
-                catch (IOException)
-                {
-                    Task.Delay(10).Wait();
-                }
-            }
-
-            MessageBox.Show("File is not ready: " + filePath);
-
-            return false;
         }
 
         public void ScanFolder()
@@ -118,17 +65,22 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 
                 var restFiles = allFiles.Except(excludeFiles).ToList();
 
-                var excepts = restFiles.Except(ImageDownloader.ImageFiles).ToList();
-
-                foreach (string except in excepts)
-                {
-                    ImageDownloader.ImageFiles.Add(except);
-                }
-
                 if (restFiles.Count == 0)
                 {
-                    ImageDownloader.ImageFiles.Clear();
+                    ImageDownloader.Reset();
                     myIsFirstBatch = false;
+                }
+                else
+                {
+                    if (!myIsFirstBatch)
+                    {
+                        var excepts = restFiles.Except(ImageDownloader.ImageFiles).ToList();
+
+                        foreach (string except in excepts)
+                        {
+                            ImageDownloader.DownloadAsync(except);
+                        }
+                    }
                 }
             }
         }
@@ -141,6 +93,11 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
         public void StopMonitor()
         {
             myManualResetEvent.Reset();
+        }
+
+        public void Clear()
+        {
+            ImageDownloader.Clear();
         }
     }
 }

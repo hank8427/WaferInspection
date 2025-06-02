@@ -15,11 +15,13 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 {
     public class ImageReceiverViewModel : INotifyPropertyChanged
     {
+        private string myCurrentArchivePath;
+
         private string mySharedFolder = AppSettingsMgt.AppSettings.SharedFolder;
 
         private string myArchiveFolder = AppSettingsMgt.AppSettings.ArchiveFolder;
 
-        private ManualResetEvent myManualResetEvent = new ManualResetEvent(true);
+        private ManualResetEvent myManualResetEvent = new ManualResetEvent(false);
 
         //public TcpImageServer TcpImageServer { get; set; }
 
@@ -33,7 +35,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         {
             //TcpImageServer = new TcpImageServer();
 
-            var projectPath = @"A:\TestModel\白金科技瑕疵檢測_20250519.vfmodel";
+            var projectPath = @"A:\TestModel\Test_20250527.vfmodel";
 
             AiDetector = new AiDetector(projectPath);
 
@@ -85,6 +87,13 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
             }
         }
 
+        public void CreateArchiveFolder()
+        {
+            myCurrentArchivePath = $"{myArchiveFolder}\\{DateTime.Now:yyyyMMdd_HHmmss}";
+
+            Directory.CreateDirectory(myCurrentArchivePath);
+        }
+
         private void ImageFiles_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (string.IsNullOrEmpty(mySharedFolder))
@@ -108,13 +117,18 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                             DyeResultList.Add(dyeResult);
                         });
 
-                        var fileName = $"{dyeResult.Name}_{dyeResult.Section}_{dyeResult.Column}_{dyeResult.Row}_{dyeResult.OKNG}.bmp";
+                        var index = dyeResult.Name.Split('.').FirstOrDefault();
 
-                        var fullPath = Path.Combine(myArchiveFolder, fileName);
+                        var fileName = $"{index}_{dyeResult.Section}_{dyeResult.Column}_{dyeResult.Row}_{dyeResult.OKNG}.bmp";
 
-                        File.Copy(file, fullPath, true);
+                        var fullPath = Path.Combine(myCurrentArchivePath, fileName);
 
-                        CsvManager.AppendLog(dyeResult);
+                        await Task.Run(() =>
+                        {
+                            File.Copy(file, fullPath, true);
+
+                            CsvManager.AppendLog(dyeResult);
+                        });
                     }
                 });
             }
