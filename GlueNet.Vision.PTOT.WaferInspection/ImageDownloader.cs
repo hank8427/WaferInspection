@@ -107,21 +107,16 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                     Directory.CreateDirectory(targetDirectory);
                 }
 
-                if (fileNumber == 0)
-                {
-                    throw new Exception("Download error");
-                }
-                else
-                {
-                    // 非同步複製檔案
-                    using (var sourceStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    using (var targetStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
-                    {
-                        await sourceStream.CopyToAsync(targetStream);
-                    }
 
-                    myCopyOKImageFiles.Add(file);
+                // 非同步複製檔案
+                using (var sourceStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var targetStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    await sourceStream.CopyToAsync(targetStream);
                 }
+
+                myCopyOKImageFiles.Add(file);
+                
             }
             catch (Exception ex)
             {
