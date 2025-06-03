@@ -36,10 +36,10 @@
         <DataGrid Grid.Row="2" ItemsSource="{Binding DyeResultList}" AutoGenerateColumns="False" CanUserAddRows="False" Margin="10" Height="350" VerticalScrollBarVisibility="Visible">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
-                <DataGridTextColumn Header="Section" Binding="{Binding Section}" Width="*"/>
-                <DataGridTextColumn Header="Column" Binding="{Binding Column}" Width="*"/>
-                <DataGridTextColumn Header="Row" Binding="{Binding Row}" Width="*"/>
-                <DataGridTextColumn Header="OK/NG" Binding="{Binding OKNG}" Width="*"/>
+                <DataGridTextColumn Header="Section" Binding="{Binding Section}" Width="80"/>
+                <DataGridTextColumn Header="Column" Binding="{Binding Column}" Width="80"/>
+                <DataGridTextColumn Header="Row" Binding="{Binding Row}" Width="80"/>
+                <DataGridTextColumn Header="OK/NG" Binding="{Binding OKNG}" Width="100"/>
                 <DataGridTextColumn Header="AiDetectResult" Binding="{Binding AiDetectResult}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>

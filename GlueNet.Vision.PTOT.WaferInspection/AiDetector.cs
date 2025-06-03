@@ -60,7 +60,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             int.TryParse(Path.GetFileNameWithoutExtension(file), out int index);
 
             var dyeDefectInfo = MergeOperationResult(recognitionPipelineResult.OperationResults)
-                                .Where(x => (x.Rectangle.Width >= 100 || x.Rectangle.Height >= 100)).ToList();
+                                .Where(x => (x.Rectangle.Width >= 20 || x.Rectangle.Height >= 20)).ToList();
 
             var dyeResult = new DyeResult
             {
@@ -85,11 +85,14 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         private List<DyeDefect> MergeOperationResult(IReadOnlyList<IOperationResult> operationResultList)
         {
             var dyeDefectList = new List<DyeDefect>();
-            if (operationResultList != null)
+
+            var segmentations = operationResultList.Where(x => x.Type == OperationType.Segmentation);
+
+            if (segmentations != null)
             {
-                foreach (var operationResult in operationResultList)
+                foreach (var segmentation in segmentations)
                 {
-                    foreach (var result in operationResult.GetResult() as IReadOnlyList<SegmentationData>)
+                    foreach (var result in segmentation.GetResult() as IReadOnlyList<SegmentationData>)
                     {
                         dyeDefectList.Add(new DyeDefect(result.Label, result.BoundingBox, result.Confidence));
                     }

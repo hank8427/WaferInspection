@@ -35,7 +35,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         {
             //TcpImageServer = new TcpImageServer();
 
-            var projectPath = @"A:\TestModel\Test_20250527.vfmodel";
+            var projectPath = @"A:\TestModel\Test_20250603.vfmodel";
 
             AiDetector = new AiDetector(projectPath);
 
