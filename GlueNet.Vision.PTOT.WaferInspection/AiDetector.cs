@@ -7,11 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Shapes;
 using GlueNet.VisionAI.Core.Models;
 using GlueNet.VisionAI.Core.Operations;
 using GlueNet.VisionAI.Recognitions.Aidi;
 using Newtonsoft.Json;
 using OpenCvSharp;
+using Path = System.IO.Path;
 
 namespace GlueNet.Vision.PTOT.WaferInspection
 {
@@ -60,13 +62,13 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             int.TryParse(Path.GetFileNameWithoutExtension(file), out int index);
 
             var dyeDefectInfo = MergeOperationResult(recognitionPipelineResult.OperationResults)
-                                .Where(x => (x.Rectangle.Width >= 20 || x.Rectangle.Height >= 20)).ToList();
+                                .Where(x => (x.Rectangle.Width > 0 || x.Rectangle.Height > 0)).ToList();
 
             var dyeResult = new DyeResult
             {
                 Name = Path.GetFileName(file),
                 Row = index % RowNumber,
-                Column = index / RowNumber,
+                Column = index / RowNumber % ColumnNumber,
                 Section = index / RowNumber / ColumnNumber,
                 OKNG = dyeDefectInfo.Count == 0 ? "OK" : "NG",
                 AiDetectResult = JsonConvert.SerializeObject(dyeDefectInfo),
@@ -94,7 +96,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                 {
                     foreach (var result in segmentation.GetResult() as IReadOnlyList<SegmentationData>)
                     {
-                        dyeDefectList.Add(new DyeDefect(result.Label, result.BoundingBox, result.Confidence));
+                        var rect = new Rectangle(result.BoundingBox.X, result.BoundingBox.Y, result.BoundingBox.Width, result.BoundingBox.Height);
+
+                        dyeDefectList.Add(new DyeDefect(result.Label, rect, result.Confidence));
                     }
                 }
             }

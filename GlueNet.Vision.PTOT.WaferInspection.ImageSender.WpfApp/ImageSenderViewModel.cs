@@ -98,6 +98,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
         public void Clear()
         {
             ImageDownloader.Clear();
+            myIsFirstBatch = true;
         }
     }
 }
