@@ -41,6 +41,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         public int RowNumber { get; set; } = AppSettingsMgt.AppSettings.RowNumber;
         public int ColumnNumber { get; set; } = AppSettingsMgt.AppSettings.ColumnNumber;
         public AiDetector AiDetector { get; set; }
+        public string CurrentSourceFolder { get; set; }
         public ObservableCollection<DyeResult> DyeResultList { get; set; }
         public ObservableCollection<string> ImageFiles { get; set; }
 
@@ -90,19 +91,25 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         {
             if (!string.IsNullOrEmpty(mySharedFolder))
             {
-                var subdirectories = Directory.GetDirectories(mySharedFolder)
+                var currentPathInfo = Directory.GetDirectories(mySharedFolder)
                                     .Select(dir => new DirectoryInfo(dir))
                                     .OrderBy(dirInfo => dirInfo.CreationTime)
                                     .FirstOrDefault();
 
 
+                if (currentPathInfo?.FullName == null)
+                {
+                    return;
+                }
 
-                var allFiles = Directory.GetFiles(mySharedFolder, "*.bmp")
-                                                .OrderBy(f =>
-                                                {
-                                                    string fileName = Path.GetFileNameWithoutExtension(f);
-                                                    return int.TryParse(fileName, out int num) ? num : int.MaxValue;
-                                                }).ToArray();
+                CurrentSourceFolder = currentPathInfo.Name;
+
+                var allFiles = Directory.GetFiles(currentPathInfo.FullName, "*.bmp")
+                    .OrderBy(f =>
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(f);
+                        return int.TryParse(fileName, out int num) ? num : int.MaxValue;
+                    }).ToArray();
 
                 var excepts = allFiles.Except(ImageFiles).ToList();
 
@@ -128,84 +135,75 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
                         var fileName = $"{index}_{dyeResult.Section}_{dyeResult.Column}_{dyeResult.Row}_{dyeResult.OKNG}.bmp";
 
-                        var fullPath = Path.Combine(myCurrentArchivePath, fileName);
+                        var currentArchivePath = $"{myCurrentArchivePath}\\{currentPathInfo.Name}";
+
+                        var fullPath = Path.Combine(currentArchivePath, fileName);
+
+                        if (!Directory.Exists(currentArchivePath))
+                        {
+                            Directory.CreateDirectory(currentArchivePath);
+
+                            var csvfolderPath = $"{myCurrentArchivePath}\\{currentPathInfo.Name}";
+                            var csvfilePath = $"{csvfolderPath}\\{myCurrentArchivePath.Split('\\').LastOrDefault()}.csv";
+                            CsvManager.CreateNewFile(csvfolderPath, csvfilePath);
+                        }
 
                         await Task.Run(() =>
                         {
                             File.Copy(file, fullPath, true);
 
                             CsvManager.AppendLog(dyeResult);
-
-                            //using (var bitmap = new Bitmap(file))
-                            //{
-                            //    var dyeDefectList =
-                            //        JsonConvert.DeserializeObject<List<DyeDefect>>(dyeResult.AiDetectResult);
-
-                            //    var labelImage = DrawOnImage(dyeDefectList, bitmap);
-
-                            //    var labelImagePath = Path.Combine(myCurrentLabelImagesPath, $"{index}_label.bmp");
-
-                            //    if (!Directory.Exists(myCurrentLabelImagesPath))
-                            //    {
-                            //        Directory.CreateDirectory(myCurrentLabelImagesPath);
-                            //    }
-
-                            //    labelImage.Save(labelImagePath);
-                            //}
                         });
                     }
                 });
 
-                if (allFiles.Count() == 0)
+                if (ImageFiles.Count == SectionNumber*ColumnNumber*RowNumber)
                 {
+                    Directory.Delete(currentPathInfo.FullName, true);
                     ImageFiles.Clear();
+                    DyeResultList.Clear();
                 }
             }
         }
 
         public void ScanFolder2()
         {
-            Task.Run(() =>
+            if (!string.IsNullOrEmpty(mySharedFolder))
             {
-                if (!string.IsNullOrEmpty(mySharedFolder))
-                {
-                    var allFiles = Directory.GetFiles(mySharedFolder, "*.bmp")
-                        .OrderBy(f =>
-                        {
-                            string fileName = Path.GetFileNameWithoutExtension(f);
-                            return int.TryParse(fileName, out int num) ? num : int.MaxValue;
-                        }).ToList();
-
-                    allFiles.ForEach(async file =>
+                var allFiles = Directory.GetFiles(mySharedFolder, "*.bmp")
+                    .OrderBy(f =>
                     {
-                        if (!IsFileAccessible(file))
-                        {
-                            return;
-                        }
+                        string fileName = Path.GetFileNameWithoutExtension(f);
+                        return int.TryParse(fileName, out int num) ? num : int.MaxValue;
+                    }).ToList();
 
-                        if (File.Exists(file))
-                        {
-                            var fileName = Path.GetFileName(file);
+                allFiles.ForEach(async file =>
+                {
+                    if (!IsFileAccessible(file))
+                    {
+                        return;
+                    }
 
-                            var fullPath = Path.Combine("D:\\TestShare", fileName);
+                    if (File.Exists(file))
+                    {
+                        var fileName = Path.GetFileName(file);
 
-                            myStopwatch.Restart();
+                        var fullPath = Path.Combine("D:\\TestShare", fileName);
 
-                            File.Move(file, fullPath);
+                        myStopwatch.Restart();
 
-                            myStopwatch.Stop();
-                            Console.WriteLine($@"Move File Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
-                        }
-                    });
-                }
-            });
+                        File.Move(file, fullPath);
+
+                        myStopwatch.Stop();
+                        Console.WriteLine($@"Move File Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
+                    }
+                });
+            }
         }
 
         public void CreateArchiveFolder(string dateTime)
         {
             myCurrentArchivePath = $"{myArchiveFolder}\\{dateTime}";
-
-            myCurrentLabelImagesPath = $"D:\\LabelImages\\{dateTime}";
 
             Directory.CreateDirectory(myCurrentArchivePath);
         }

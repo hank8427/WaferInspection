@@ -19,11 +19,18 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <WrapPanel>
-            <Button Content="Start Monitor" Click="StartMonitor_OnClick" Width="150" Height="50" FontSize="20" Margin="5"/>
-            <Button Content="Stop Monitor" Click="StopMonitor_OnClick" Width="150" Height="50" FontSize="20" Margin="5"/>
-            <Button Content="Clear" Click="ClearDyeResultList_OnClick" Width="150" Height="50" FontSize="20" Margin="5"/>
-        </WrapPanel>
+        <DockPanel>
+            <WrapPanel DockPanel.Dock="Right" VerticalAlignment="Center">
+                <TextBlock Text="Current: " FontSize="25" Margin="5"/>
+                <TextBlock Text="{Binding CurrentSourceFolder}" Width="200" FontSize="25" Margin="5"/>
+            </WrapPanel>
+
+            <WrapPanel Margin="5">
+                <Button Content="Start Monitor" Click="StartMonitor_OnClick" Width="150" Height="70" FontSize="20" Margin="5"/>
+                <Button Content="Stop Monitor" Click="StopMonitor_OnClick" Width="150" Height="70" FontSize="20" Margin="5"/>
+                <Button Content="Clear" Click="ClearDyeResultList_OnClick" Width="150" Height="70" FontSize="20" Margin="5"/>
+            </WrapPanel>
+        </DockPanel>
             
         <WrapPanel Grid.Row="1">
             <TextBlock Text="Section: "  FontSize="30" Margin="5"/>
