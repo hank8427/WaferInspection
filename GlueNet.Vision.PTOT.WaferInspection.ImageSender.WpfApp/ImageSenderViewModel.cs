@@ -16,9 +16,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 {
     public class ImageSenderViewModel : INotifyPropertyChanged
     {
-        private bool myIsFirstBatch = true;
+        private int myLastRestFilesCount = -1;
 
-        private int myCurrentColumn = 0;
+        private bool myIsFirstBatch = true;
 
         private string mySourceFolder = AppSettingsMgt.AppSettings.TcpConnectionSetting.SourceFolder;
 
@@ -68,11 +68,16 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 
                 var restFiles = allFiles.Except(excludeFiles).ToList();
 
-                if (restFiles.Count == 0)
+                var currentCount = restFiles.Count;
+
+                if (currentCount == 0)
                 {
-                    ImageDownloader.Reset();
-                    myIsFirstBatch = false;
-                    myCurrentColumn += 1;
+                    if (myLastRestFilesCount > 0)
+                    {
+                        ImageDownloader.Reset();
+                        myIsFirstBatch = false;
+                        ImageDownloader.CurrentColumn += 1;
+                    }
                 }
                 else
                 {
@@ -82,10 +87,12 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 
                         foreach (string except in excepts)
                         {
-                            ImageDownloader.DownloadAsync(except, myCurrentColumn);
+                            ImageDownloader.DownloadAsync(except, ImageDownloader.CurrentColumn);
                         }
                     }
                 }
+
+                myLastRestFilesCount = currentCount;
             }
         }
 
@@ -103,6 +110,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
         {
             ImageDownloader.Clear();
             myIsFirstBatch = true;
+            ImageDownloader.CurrentColumn = -1;
         }
 
         public void SetSize()

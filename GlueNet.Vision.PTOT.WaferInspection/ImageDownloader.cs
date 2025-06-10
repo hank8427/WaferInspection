@@ -26,8 +26,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         private int mySectionNumber;
         private int myColumnNumber;
         private int myRowNumber;
-
         private int myCurrentFrame;
+
+        public int CurrentColumn = -1;
         public ObservableCollection<string> ImageFiles { get; set; }
 
         public ImageDownloader()
@@ -66,11 +67,6 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                     //}
 
                     fileName = (currentColumn * myRowNumber + fileNumber).ToString() + ".bmp";
-
-                    if (currentColumn * myRowNumber + fileNumber == mySectionNumber * myColumnNumber * myRowNumber - 1)
-                    {
-                        myCurrentFrame += 1;
-                    }
                 }
                 else
                 {
@@ -93,6 +89,12 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                 using (var targetStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     await sourceStream.CopyToAsync(targetStream);
+                }
+
+                if (currentColumn * myRowNumber + fileNumber == mySectionNumber * myColumnNumber * myRowNumber - 1)
+                {
+                    myCurrentFrame += 1;
+                    CurrentColumn = -1;
                 }
 
                 myCopyOKImageFiles.Add(file);
