@@ -23,7 +23,11 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
         private int myTotalImageCount;
 
+        private int mySectionNumber;
+        private int myColumnNumber;
         private int myRowNumber;
+
+        private int myCurrentFrame;
         public ObservableCollection<string> ImageFiles { get; set; }
 
         public ImageDownloader()
@@ -31,43 +35,14 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
         }
 
-        public void SetRowNumber(int rowNumber)
+        public void SetSize(int sectionNumber, int columnNumber, int rowNumber )
         {
+            mySectionNumber = sectionNumber;
+            myColumnNumber = columnNumber;
             myRowNumber = rowNumber;
         }
 
-        public void Download(string file)
-        {   
-            var fileName = Path.GetFileNameWithoutExtension(file);
-
-            //var parseInt = int.TryParse(fileName, out int fileNumber);
-
-            var parseInt = GetNumberFromFileName(fileName, out int fileNumber);
-
-            if (parseInt)
-            {
-                myTotalImageCount += 1;
-                var row = myTotalImageCount / myRowNumber;
-
-                if (myTotalImageCount % myRowNumber == 0)
-                {
-                    row -= 1;
-                }
-
-                fileName = (row * myRowNumber + fileNumber).ToString() + ".bmp";
-            }
-            else
-            {
-                // Log error
-                MessageBox.Show("File name parse error");
-            }
-
-            var fullPath = Path.Combine(mySharedFolder, fileName);
-
-            File.Copy(file, fullPath, true);
-        }
-
-        public async void DownloadAsync(string file)
+        public async void DownloadAsync(string file, int currentColumn)
         {
             try
             {
@@ -82,15 +57,20 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
                 if (parseInt)
                 {
-                    myTotalImageCount += 1;
-                    var row = myTotalImageCount / myRowNumber;
+                    //myTotalImageCount += 1;
+                    //var row = myTotalImageCount / myRowNumber;
 
-                    if (myTotalImageCount % myRowNumber == 0)
+                    //if (myTotalImageCount % myRowNumber == 0)
+                    //{
+                    //    row -= 1;
+                    //}
+
+                    fileName = (currentColumn * myRowNumber + fileNumber).ToString() + ".bmp";
+
+                    if (currentColumn * myRowNumber + fileNumber == mySectionNumber * myColumnNumber * myRowNumber - 1)
                     {
-                        row -= 1;
+                        myCurrentFrame += 1;
                     }
-
-                    fileName = (row * myRowNumber + fileNumber).ToString() + ".bmp";
                 }
                 else
                 {
@@ -99,7 +79,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
                 ImageFiles.Add(file);
 
-                var fullPath = Path.Combine(mySharedFolder, fileName);
+                var fullPath = Path.Combine($"{mySharedFolder}\\Frame{myCurrentFrame.ToString()}", fileName);
 
                 var targetDirectory = Path.GetDirectoryName(fullPath);
                 if (!Directory.Exists(targetDirectory))
@@ -122,7 +102,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             {
                 ImageFiles.Remove(file);
 
-                myTotalImageCount -= 1;
+                //myTotalImageCount -= 1;
 
                 Console.WriteLine($"Error downloading file {file}: {ex.Message}");
             }
@@ -154,6 +134,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
             myCopyOKImageFiles.Clear();
             ImageFiles.Clear();
+            myCurrentFrame = 0;
         }
 
         public void Reset()

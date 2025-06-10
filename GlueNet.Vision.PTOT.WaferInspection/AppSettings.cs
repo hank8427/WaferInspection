@@ -9,6 +9,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 {
     public class AppSettings
     {
+        public int SectionNumber { get; set; }
         public int RowNumber { get; set; }
         public int ColumnNumber { get; set; }
         public string SharedFolder { get; set; }

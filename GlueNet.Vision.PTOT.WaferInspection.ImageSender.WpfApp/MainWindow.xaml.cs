@@ -47,9 +47,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
             ImageSenderViewModel.StopMonitor();
         }
 
-        private void SetRowCount_OnClick(object sender, RoutedEventArgs e)
+        private void SetSize_OnClick(object sender, RoutedEventArgs e)
         {
-            ImageSenderViewModel.ImageDownloader.SetRowNumber(ImageSenderViewModel.RowNumber);
+            ImageSenderViewModel.SetSize();
         }
     }
 }

@@ -37,7 +37,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         private ManualResetEvent myManualResetEvent = new ManualResetEvent(false);
 
         //public TcpImageServer TcpImageServer { get; set; }
-
+        public int SectionNumber { get; set; } = AppSettingsMgt.AppSettings.SectionNumber;
+        public int RowNumber { get; set; } = AppSettingsMgt.AppSettings.RowNumber;
+        public int ColumnNumber { get; set; } = AppSettingsMgt.AppSettings.ColumnNumber;
         public AiDetector AiDetector { get; set; }
         public ObservableCollection<DyeResult> DyeResultList { get; set; }
         public ObservableCollection<string> ImageFiles { get; set; }
@@ -51,6 +53,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
             var projectPath = @"A:\TestModel\無網印Test.vfmodel";
 
             AiDetector = new AiDetector(projectPath);
+
+            AiDetector.SetSize(SectionNumber, ColumnNumber, RowNumber);
 
             ImageFiles = new ObservableCollection<string>();
 
@@ -86,6 +90,13 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         {
             if (!string.IsNullOrEmpty(mySharedFolder))
             {
+                var subdirectories = Directory.GetDirectories(mySharedFolder)
+                                    .Select(dir => new DirectoryInfo(dir))
+                                    .OrderBy(dirInfo => dirInfo.CreationTime)
+                                    .FirstOrDefault();
+
+
+
                 var allFiles = Directory.GetFiles(mySharedFolder, "*.bmp")
                                                 .OrderBy(f =>
                                                 {
@@ -124,7 +135,6 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                             File.Copy(file, fullPath, true);
 
                             CsvManager.AppendLog(dyeResult);
-
 
                             //using (var bitmap = new Bitmap(file))
                             //{
@@ -191,10 +201,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
             });
         }
 
-        public void CreateArchiveFolder()
+        public void CreateArchiveFolder(string dateTime)
         {
-            var dateTime = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-
             myCurrentArchivePath = $"{myArchiveFolder}\\{dateTime}";
 
             myCurrentLabelImagesPath = $"D:\\LabelImages\\{dateTime}";
@@ -227,68 +235,14 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
             DyeResultList.Clear();
         }
 
-        private void ImageFiles_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        public void SetSize()
         {
-            if (string.IsNullOrEmpty(mySharedFolder))
-            {
-                return;
-            }
+            AiDetector.SetSize(SectionNumber, ColumnNumber, RowNumber);
 
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                var newImageFiles = e.NewItems.Cast<string>().ToList();
-
-                newImageFiles.ForEach(async file =>
-                {
-                    var isFileAvailable = WaitUntilFileIsReady(file, 1000);
-                    if (File.Exists(file) && isFileAvailable)
-                    {
-                        var dyeResult = await AiDetector.Run(file);
-
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            DyeResultList.Add(dyeResult);
-                        });
-
-                        var index = dyeResult.Name.Split('.').FirstOrDefault();
-
-                        var fileName = $"{index}_{dyeResult.Section}_{dyeResult.Column}_{dyeResult.Row}_{dyeResult.OKNG}.bmp";
-
-                        var fullPath = Path.Combine(myCurrentArchivePath, fileName);
-
-                        await Task.Run(() =>
-                        {
-                            File.Copy(file, fullPath, true);
-
-                            CsvManager.AppendLog(dyeResult);
-                        });
-                    }
-                });
-            }
-        }
-
-        private bool WaitUntilFileIsReady(string filePath, int timeoutMs = 2000)
-        {
-            var stopwatch = Stopwatch.StartNew();
-
-            while (stopwatch.ElapsedMilliseconds < timeoutMs)
-            {
-                try
-                {
-                    using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
-                    {
-                        return true;
-                    }
-                }
-                catch (IOException)
-                {
-                    Task.Delay(10).Wait();
-                }
-            }
-
-            MessageBox.Show("File is not ready: " + filePath);
-
-            return false;
+            AppSettingsMgt.AppSettings.SectionNumber = SectionNumber;
+            AppSettingsMgt.AppSettings.RowNumber = RowNumber;
+            AppSettingsMgt.AppSettings.ColumnNumber = ColumnNumber;
+            AppSettingsMgt.Save();
         }
 
         private bool IsFileAccessible(string filePath)

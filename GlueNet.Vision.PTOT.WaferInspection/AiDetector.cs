@@ -24,8 +24,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         private AidiRecognitionProject myAidiRecognitionProject;
 
         public string ProjectPath { get; set; }
-        public int RowNumber { get; set; } = AppSettingsMgt.AppSettings.RowNumber;
-        public int ColumnNumber { get; set; } = AppSettingsMgt.AppSettings.ColumnNumber;
+        private int mySectionNumber { get; set; }
+        private int myRowNumber { get; set; }
+        private int myColumnNumber { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -37,6 +38,13 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         public async Task Initialize()
         {
             await CreateRecognitionPipeline(ProjectPath);
+        }
+
+        public void SetSize(int sectionNumber, int columnNumber, int rowNumber)
+        {
+            mySectionNumber = sectionNumber;
+            myColumnNumber = columnNumber;
+            myRowNumber = rowNumber;
         }
 
         public async Task<DyeResult> Run(string file)
@@ -67,9 +75,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection
             var dyeResult = new DyeResult
             {
                 Name = Path.GetFileName(file),
-                Row = index % RowNumber,
-                Column = index / RowNumber % ColumnNumber,
-                Section = index / RowNumber / ColumnNumber,
+                Row = index % myRowNumber,
+                Column = index / myRowNumber % myColumnNumber,
+                Section = index / myRowNumber / myColumnNumber,
                 OKNG = dyeDefectInfo.Count == 0 ? "OK" : "NG",
                 AiDetectResult = JsonConvert.SerializeObject(dyeDefectInfo),
             };

@@ -18,9 +18,12 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
     {
         private bool myIsFirstBatch = true;
 
+        private int myCurrentColumn = 0;
+
         private string mySourceFolder = AppSettingsMgt.AppSettings.TcpConnectionSetting.SourceFolder;
 
         private ManualResetEvent myManualResetEvent = new ManualResetEvent(false);
+        public int SectionNumber { get; set; } = AppSettingsMgt.AppSettings.SectionNumber;
         public int RowNumber { get; set; } = AppSettingsMgt.AppSettings.RowNumber;
         public int ColumnNumber { get; set; } = AppSettingsMgt.AppSettings.ColumnNumber;
         public ImageDownloader ImageDownloader { get; set; }
@@ -31,7 +34,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
         {
             ImageDownloader = new ImageDownloader();
 
-            ImageDownloader.SetRowNumber(RowNumber);
+            ImageDownloader.SetSize(SectionNumber, ColumnNumber, RowNumber);
 
             ImageDownloader.ImageFiles = new ObservableCollection<string>();
 
@@ -69,6 +72,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
                 {
                     ImageDownloader.Reset();
                     myIsFirstBatch = false;
+                    myCurrentColumn += 1;
                 }
                 else
                 {
@@ -78,7 +82,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 
                         foreach (string except in excepts)
                         {
-                            ImageDownloader.DownloadAsync(except);
+                            ImageDownloader.DownloadAsync(except, myCurrentColumn);
                         }
                     }
                 }
@@ -99,6 +103,16 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
         {
             ImageDownloader.Clear();
             myIsFirstBatch = true;
+        }
+
+        public void SetSize()
+        {
+            ImageDownloader.SetSize(SectionNumber, ColumnNumber, RowNumber);
+
+            AppSettingsMgt.AppSettings.SectionNumber = SectionNumber;
+            AppSettingsMgt.AppSettings.RowNumber = RowNumber;
+            AppSettingsMgt.AppSettings.ColumnNumber = ColumnNumber;
+            AppSettingsMgt.Save();
         }
     }
 }

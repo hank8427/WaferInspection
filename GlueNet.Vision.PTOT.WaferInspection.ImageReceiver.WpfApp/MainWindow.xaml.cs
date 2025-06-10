@@ -39,20 +39,21 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
         private void SetSize_OnClick(object sender, RoutedEventArgs e)
         {
-            AppSettingsMgt.AppSettings.RowNumber = ImageReceiverViewModel.AiDetector.RowNumber;
-            AppSettingsMgt.AppSettings.ColumnNumber = ImageReceiverViewModel.AiDetector.ColumnNumber;
-            AppSettingsMgt.Save();
+            ImageReceiverViewModel.SetSize();
         }
 
         private void StartMonitor_OnClick(object sender, RoutedEventArgs e)
         {
             ImageReceiverViewModel.StartMonitor();
+            
+            var dateTime = DateTime.Now.ToString("yyyyMMddHHmmss");
 
-            var csvfolderPath = AppSettingsMgt.AppSettings.CsvOutputFolder;
-            var csvfilePath = $"{csvfolderPath}\\{DateTime.Now:yyyyMMddHHmmss}.csv";
+            ImageReceiverViewModel.CreateArchiveFolder(dateTime);
+
+            var csvfolderPath = AppSettingsMgt.AppSettings.ArchiveFolder;
+            var csvfilePath = $"{csvfolderPath}\\{dateTime}\\{dateTime}.csv";
             CsvManager.CreateNewFile(csvfolderPath, csvfilePath);
 
-            ImageReceiverViewModel.CreateArchiveFolder();
         }
 
         private void StopMonitor_OnClick(object sender, RoutedEventArgs e)

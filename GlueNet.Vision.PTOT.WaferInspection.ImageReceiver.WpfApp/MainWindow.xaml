@@ -26,10 +26,12 @@
         </WrapPanel>
             
         <WrapPanel Grid.Row="1">
-            <TextBlock Text="Row Number: "  FontSize="30" Margin="5"/>
-            <TextBox Text="{Binding AiDetector.RowNumber, Converter={StaticResource NumberConverter}}" HorizontalContentAlignment="Center" Width="100" FontSize="30" Margin="5"/>
-            <TextBlock Text="Column Number: " FontSize="30" Margin="5"/>
-            <TextBox Text="{Binding AiDetector.ColumnNumber, Converter={StaticResource NumberConverter}}" HorizontalContentAlignment="Center" Width="100" FontSize="30" Margin="5"/>
+            <TextBlock Text="Section: "  FontSize="30" Margin="5"/>
+            <TextBox Text="{Binding SectionNumber, Converter={StaticResource NumberConverter}}" HorizontalContentAlignment="Center" Width="100" FontSize="30" Margin="5"/>
+            <TextBlock Text="Row: "  FontSize="30" Margin="5"/>
+            <TextBox Text="{Binding RowNumber, Converter={StaticResource NumberConverter}}" HorizontalContentAlignment="Center" Width="100" FontSize="30" Margin="5"/>
+            <TextBlock Text="Column: " FontSize="30" Margin="5"/>
+            <TextBox Text="{Binding ColumnNumber, Converter={StaticResource NumberConverter}}" HorizontalContentAlignment="Center" Width="100" FontSize="30" Margin="5"/>
             <Button Content="Set" Click="SetSize_OnClick" Width="100" Height="40" FontSize="20"/>
         </WrapPanel>
 
