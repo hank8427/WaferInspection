@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +18,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
     public class ImageDownloader
     {
         //private string SenderFolder = AppSettingsMgt.AppSettings.TcpConnectionSetting.SenderFolder;
+        private ILogger myLogger = LogManager.GetCurrentClassLogger();
         private ObservableCollection<string> myCopyOKImageFiles { get; set; } = new ObservableCollection<string>();
 
         private string mySharedFolder = AppSettingsMgt.AppSettings.SharedFolder;
@@ -29,6 +31,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         private int myCurrentFrame;
 
         public int CurrentColumn = -1;
+
+        public Stopwatch Stopwatch { get; set; } = new Stopwatch();
+
         public ObservableCollection<string> ImageFiles { get; set; }
 
         public ImageDownloader()
@@ -73,6 +78,11 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                     throw new Exception("File name parse error");
                 }
 
+                if (myCurrentFrame == 0 && ImageFiles.Count == 0 && myTotalImageCount == 0)
+                {
+                    Stopwatch.Start();
+                }
+
                 ImageFiles.Add(file);
 
                 var fullPath = Path.Combine($"{mySharedFolder}\\Frame{myCurrentFrame.ToString()}", fileName);
@@ -93,12 +103,16 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
                 if (currentColumn * myRowNumber + fileNumber == mySectionNumber * myColumnNumber * myRowNumber - 1)
                 {
+                    Stopwatch.Stop();
+                    myLogger.Info($"Frame {myCurrentFrame} downloaded in {Stopwatch.Elapsed.TotalSeconds} seconds");
+                    Stopwatch.Restart();
+                    
                     myCurrentFrame += 1;
                     CurrentColumn = -1;
                 }
 
                 myCopyOKImageFiles.Add(file);
-                
+                myTotalImageCount += 1;
             }
             catch (Exception ex)
             {
@@ -106,7 +120,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
                 //myTotalImageCount -= 1;
 
-                Console.WriteLine($"Error downloading file {file}: {ex.Message}");
+                myLogger.Info($"Error downloading file {file}: {ex.Message}");
             }
         }
 

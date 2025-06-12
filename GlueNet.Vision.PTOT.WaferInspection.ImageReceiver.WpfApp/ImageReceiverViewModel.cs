@@ -16,6 +16,7 @@ using System.Windows;
 using GlueNet.VisionAI.Core.Models;
 using GlueNet.VisionAI.Core.Operations;
 using Newtonsoft.Json;
+using NLog;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
@@ -24,6 +25,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 {
     public class ImageReceiverViewModel : INotifyPropertyChanged
     {
+        private ILogger myLogger = LogManager.GetCurrentClassLogger();
+
         private Stopwatch myStopwatch = new Stopwatch();
 
         private string myCurrentArchivePath;
@@ -77,7 +80,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+
+                        myLogger.Info(ex.ToString());
                     }
 
                     Task.Delay(10).Wait();
@@ -118,6 +122,11 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                     if (!IsFileAccessible(file))
                     {
                         return;
+                    }
+
+                    if (ImageFiles.Count == 0)
+                    {
+                        myStopwatch.Start();
                     }
 
                     if (File.Exists(file))
@@ -162,44 +171,47 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                     Directory.Delete(currentPathInfo.FullName, true);
                     ImageFiles.Clear();
                     DyeResultList.Clear();
+
+                    myStopwatch.Stop();
+                    myLogger.Info($"Time to complete detection of Frame {currentPathInfo.FullName} : {myStopwatch.Elapsed.TotalSeconds} seconds");
                 }
             }
         }
 
-        public void ScanFolder2()
-        {
-            if (!string.IsNullOrEmpty(mySharedFolder))
-            {
-                var allFiles = Directory.GetFiles(mySharedFolder, "*.bmp")
-                    .OrderBy(f =>
-                    {
-                        string fileName = Path.GetFileNameWithoutExtension(f);
-                        return int.TryParse(fileName, out int num) ? num : int.MaxValue;
-                    }).ToList();
+        //public void ScanFolder2()
+        //{
+        //    if (!string.IsNullOrEmpty(mySharedFolder))
+        //    {
+        //        var allFiles = Directory.GetFiles(mySharedFolder, "*.bmp")
+        //            .OrderBy(f =>
+        //            {
+        //                string fileName = Path.GetFileNameWithoutExtension(f);
+        //                return int.TryParse(fileName, out int num) ? num : int.MaxValue;
+        //            }).ToList();
 
-                allFiles.ForEach(async file =>
-                {
-                    if (!IsFileAccessible(file))
-                    {
-                        return;
-                    }
+        //        allFiles.ForEach(async file =>
+        //        {
+        //            if (!IsFileAccessible(file))
+        //            {
+        //                return;
+        //            }
 
-                    if (File.Exists(file))
-                    {
-                        var fileName = Path.GetFileName(file);
+        //            if (File.Exists(file))
+        //            {
+        //                var fileName = Path.GetFileName(file);
 
-                        var fullPath = Path.Combine("D:\\TestShare", fileName);
+        //                var fullPath = Path.Combine("D:\\TestShare", fileName);
 
-                        myStopwatch.Restart();
+        //                myStopwatch.Restart();
 
-                        File.Move(file, fullPath);
+        //                File.Move(file, fullPath);
 
-                        myStopwatch.Stop();
-                        Console.WriteLine($@"Move File Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
-                    }
-                });
-            }
-        }
+        //                myStopwatch.Stop();
+        //                Console.WriteLine($@"Move File Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
+        //            }
+        //        });
+        //    }
+        //}
 
         public void CreateArchiveFolder(string dateTime)
         {

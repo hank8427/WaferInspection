@@ -11,11 +11,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using GlueNet.Vision.PTOT.WaferInspection;
+using NLog;
 
 namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
 {
     public class ImageSenderViewModel : INotifyPropertyChanged
     {
+        private ILogger myLogger = LogManager.GetCurrentClassLogger();
+
+        private Stopwatch myStopwatch = new Stopwatch();
+
         private int myLastRestFilesCount = -1;
 
         private bool myIsFirstBatch = true;
@@ -23,6 +28,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
         private string mySourceFolder = AppSettingsMgt.AppSettings.TcpConnectionSetting.SourceFolder;
 
         private ManualResetEvent myManualResetEvent = new ManualResetEvent(false);
+
+        public string State { get; set; } = "Idle";
         public int SectionNumber { get; set; } = AppSettingsMgt.AppSettings.SectionNumber;
         public int RowNumber { get; set; } = AppSettingsMgt.AppSettings.RowNumber;
         public int ColumnNumber { get; set; } = AppSettingsMgt.AppSettings.ColumnNumber;
@@ -50,7 +57,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        myLogger.Info(ex.ToString());
                     }
 
                     Task.Delay(1).Wait();
@@ -99,11 +106,13 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageSender.WpfApp
         public void StartMonitor()
         {
             myManualResetEvent.Set();
+            State = "Monitoring";
         }
 
         public void StopMonitor()
         {
             myManualResetEvent.Reset();
+            State = "Idle";
         }
 
         public void Clear()
