@@ -13,18 +13,19 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         public string ClassName { get; set; }
         public Rectangle Rectangle { get; set; }
         public double Confidence { get; set; }
+        public Point2f[] Points { get; set;}
 
-        public DyeDefect(string className, Rectangle rectangle, double confidence)
+        public DyeDefect(string className, Rectangle rectangle, double confidence, Point2f[] points)
         {
             ClassName = className;
             Rectangle = rectangle;
             Confidence = confidence;
+            Points = points;
         }
     }
 
     public class Rectangle
     {
-        private float myPixelSize = 1.4f;
         public float X { get; set; }
         public float Y { get; set; }
         public float Width { get; set; }
@@ -34,8 +35,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection
         {
             X = x;
             Y = y;
-            Width = width * myPixelSize;
-            Height = height * myPixelSize;
+            Width = width;
+            Height = height;
         }
     }
 }

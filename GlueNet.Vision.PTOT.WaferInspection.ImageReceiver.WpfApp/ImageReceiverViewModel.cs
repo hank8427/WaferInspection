@@ -130,7 +130,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                     }
 
                     if (File.Exists(file))
-                    {
+                    { 
                         var dyeResult = await AiDetector.Run(file);
 
                         Application.Current.Dispatcher.Invoke(() =>
@@ -159,8 +159,10 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
                         await Task.Run(() =>
                         {
-                            File.Copy(file, fullPath, true);
-
+                            if (File.Exists(file))
+                            {
+                                File.Copy(file, fullPath, true);
+                            }
                             CsvManager.AppendLog(dyeResult);
                         });
                     }
@@ -170,7 +172,141 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                 {
                     Directory.Delete(currentPathInfo.FullName, true);
                     ImageFiles.Clear();
-                    DyeResultList.Clear();
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        DyeResultList.Clear();
+                    });
+
+                    myStopwatch.Stop();
+
+                    var message = $"Time to complete detection of {currentPathInfo.FullName.Split('\\').LastOrDefault()} : {myStopwatch.Elapsed.TotalSeconds} seconds";
+
+                    Console.WriteLine(message);
+
+                    myLogger.Info(message);
+                }
+            }
+        }
+
+        public void ScanFolder_test()
+        {
+            if (!string.IsNullOrEmpty(mySharedFolder))
+            {
+                var currentPathInfo = Directory.GetDirectories(mySharedFolder)
+                                    .Select(dir => new DirectoryInfo(dir))
+                                    .OrderBy(dirInfo => dirInfo.CreationTime)
+                                    .FirstOrDefault();
+
+
+                if (currentPathInfo?.FullName == null)
+                {
+                    return;
+                }
+
+                CurrentSourceFolder = currentPathInfo.Name;
+
+                var allFiles = Directory.GetFiles(currentPathInfo.FullName, "*.bmp")
+                    .OrderBy(f =>
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(f);
+                        return int.TryParse(fileName, out int num) ? num : int.MaxValue;
+                    }).ToArray();
+
+                var excepts = allFiles.Except(ImageFiles).ToList();
+
+                var dyeResultsBatch = new List<DyeResult>();
+                var copyTasks = new List<Task>();
+
+                var currentArchivePath = Path.Combine(myCurrentArchivePath, currentPathInfo.Name);
+                if (!Directory.Exists(currentArchivePath))
+                {
+                    Directory.CreateDirectory(currentArchivePath);
+
+                    var csvfilePath = Path.Combine(currentArchivePath, $"{myCurrentArchivePath.Split('\\').LastOrDefault()}.csv");
+                    CsvManager.CreateNewFile(currentArchivePath, csvfilePath);
+                }
+
+                excepts.ForEach(async file =>
+                {
+                    if (!IsFileAccessible(file) || !File.Exists(file))
+                        return;
+
+                    if (ImageFiles.Count == 0)
+                    {
+                        myStopwatch.Start();
+                    }
+
+                    var newStopWatch = Stopwatch.StartNew();
+
+                    byte[] bytes = File.ReadAllBytes(file);
+
+                    var mat = Cv2.ImDecode(bytes, ImreadModes.Grayscale);
+
+                    Task.Delay(1100).Wait();
+
+                    newStopWatch.Stop();
+                    Console.WriteLine($@"Create Mat Elapsed Time: {newStopWatch.Elapsed.TotalMilliseconds} milliseconds");
+
+                    //var dyeResult = await AiDetector.Run(file);
+
+                    ImageFiles.Add(file);
+
+                    var testStopWatch = Stopwatch.StartNew();
+
+                    await Task.Delay(700);
+
+                    testStopWatch.Stop();
+                    Console.WriteLine($@"AI Elapsed Time: {testStopWatch.Elapsed.TotalMilliseconds} milliseconds");
+
+                    var dyeResult = new DyeResult()
+                    {
+                        Name = Path.GetFileNameWithoutExtension(file),
+                        Section = 0,
+                        Column = 0,
+                        Row = 0,
+                        OKNG = "OK",
+                    };
+
+                    dyeResultsBatch.Add(dyeResult);
+
+                    var index = dyeResult.Name.Split('.').FirstOrDefault();
+
+                    var fileName = $"{index}_{dyeResult.Section}_{dyeResult.Column}_{dyeResult.Row}_{dyeResult.OKNG}.bmp";
+                    var fullPath = Path.Combine(currentArchivePath, fileName);
+
+                    // 將複製與 Csv 紀錄放入 task 清單中，稍後批次執行
+                    copyTasks.Add(Task.Run(() =>
+                    {
+                        if (File.Exists(file))
+                        {
+                            File.Copy(file, fullPath, true);
+                        }
+                        CsvManager.AppendLog(dyeResult);
+                    }));
+                });
+
+                // 等待所有複製與寫檔任務完成
+                Task.WaitAll(copyTasks.ToArray());
+
+                // 一次更新 UI，避免多次 Dispatcher 呼叫
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    foreach (var dr in dyeResultsBatch)
+                    {
+                        DyeResultList.Add(dr);
+                    }
+                });
+
+                if (ImageFiles.Count == SectionNumber * ColumnNumber * RowNumber)
+                {
+                    Directory.Delete(currentPathInfo.FullName, true);
+                    ImageFiles.Clear();
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        DyeResultList.Clear();
+                    });
 
                     myStopwatch.Stop();
                     myLogger.Info($"Time to complete detection of Frame {currentPathInfo.FullName} : {myStopwatch.Elapsed.TotalSeconds} seconds");

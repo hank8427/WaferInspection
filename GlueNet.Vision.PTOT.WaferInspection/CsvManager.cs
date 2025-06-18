@@ -20,15 +20,18 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                 Directory.CreateDirectory(folderPath);
             }
 
-            myFilePath = filePath;
-
-            using (var stream = new FileStream(filePath, FileMode.CreateNew))
+            if (!File.Exists(filePath))
             {
-                using (var writter = new StreamWriter(stream, new UTF8Encoding(true)))
+                myFilePath = filePath;
+
+                using (var stream = new FileStream(filePath, FileMode.CreateNew))
                 {
-                    var header = "FileName,Section,Column,Row,OKNG,AiDetectResult";
-                    writter.WriteLine(header);
-                    writter.Flush();
+                    using (var writter = new StreamWriter(stream, new UTF8Encoding(true)))
+                    {
+                        var header = "FileName,Section,Column,Row,OKNG,AiDetectResult";
+                        writter.WriteLine(header);
+                        writter.Flush();
+                    }
                 }
             }
         }

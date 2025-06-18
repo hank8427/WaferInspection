@@ -106,7 +106,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
                     {
                         var rect = new Rectangle(result.BoundingBox.X, result.BoundingBox.Y, result.BoundingBox.Width, result.BoundingBox.Height);
 
-                        dyeDefectList.Add(new DyeDefect(result.Label, rect, result.Confidence));
+                        dyeDefectList.Add(new DyeDefect(result.Label, rect, result.Confidence, result.Points));
                     }
                 }
             }
