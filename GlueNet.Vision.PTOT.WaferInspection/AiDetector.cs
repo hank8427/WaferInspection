@@ -55,7 +55,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection
 
             byte[] bytes = File.ReadAllBytes(file);
 
-            var mat = Cv2.ImDecode(bytes, ImreadModes.Color);
+            var mat = Cv2.ImDecode(bytes, ImreadModes.Grayscale);
 
             myStopwatch.Stop();
             Console.WriteLine($@"Create Mat Elapsed Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");

@@ -29,6 +29,8 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
         private Stopwatch myStopwatch = new Stopwatch();
 
+        private Stopwatch myTotalStopwatch = new Stopwatch();
+
         private string myCurrentArchivePath;
 
         private string myCurrentLabelImagesPath;
@@ -47,6 +49,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         public string CurrentSourceFolder { get; set; }
         public ObservableCollection<DyeResult> DyeResultList { get; set; }
         public ObservableCollection<string> ImageFiles { get; set; }
+        public ObservableCollection<string> TempImageFiles { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -54,13 +57,15 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         {
             //TcpImageServer = new TcpImageServer();
 
-            var projectPath = @"A:\TestModel\無網印Test.vfmodel";
+            var projectPath = @"A:\TestModel\Test_20250619.vfmodel";
 
             AiDetector = new AiDetector(projectPath);
 
             AiDetector.SetSize(SectionNumber, ColumnNumber, RowNumber);
 
             ImageFiles = new ObservableCollection<string>();
+
+            TempImageFiles = new ObservableCollection<string>();
 
             DyeResultList = new ObservableCollection<DyeResult>();
 
@@ -74,7 +79,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
                     try
                     {
-                        //ScanFolder2();
+                        await Task.Run(ScanFolder2);
 
                         ScanFolder();
                     }
@@ -93,9 +98,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
         public void ScanFolder()
         {
-            if (!string.IsNullOrEmpty(mySharedFolder))
+            if (!string.IsNullOrEmpty("D:\\TestShare\\"))
             {
-                var currentPathInfo = Directory.GetDirectories(mySharedFolder)
+                var currentPathInfo = Directory.GetDirectories("D:\\TestShare\\")
                                     .Select(dir => new DirectoryInfo(dir))
                                     .OrderBy(dirInfo => dirInfo.CreationTime)
                                     .FirstOrDefault();
@@ -124,10 +129,10 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                         return;
                     }
 
-                    if (ImageFiles.Count == 0)
-                    {
-                        myStopwatch.Start();
-                    }
+                    //if (ImageFiles.Count == 0)
+                    //{
+                    //    myTotalStopwatch.Start();
+                    //}
 
                     if (File.Exists(file))
                     { 
@@ -157,7 +162,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                             CsvManager.CreateNewFile(csvfolderPath, csvfilePath);
                         }
 
-                        await Task.Run(() =>
+                        Task.Run(() =>
                         {
                             if (File.Exists(file))
                             {
@@ -178,9 +183,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                         DyeResultList.Clear();
                     });
 
-                    myStopwatch.Stop();
+                    myTotalStopwatch.Stop();
 
-                    var message = $"Time to complete detection of {currentPathInfo.FullName.Split('\\').LastOrDefault()} : {myStopwatch.Elapsed.TotalSeconds} seconds";
+                    var message = $"Time to complete detection of {currentPathInfo.FullName.Split('\\').LastOrDefault()} : {myTotalStopwatch.Elapsed.TotalSeconds} seconds";
 
                     Console.WriteLine(message);
 
@@ -314,40 +319,79 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
             }
         }
 
-        //public void ScanFolder2()
-        //{
-        //    if (!string.IsNullOrEmpty(mySharedFolder))
-        //    {
-        //        var allFiles = Directory.GetFiles(mySharedFolder, "*.bmp")
-        //            .OrderBy(f =>
-        //            {
-        //                string fileName = Path.GetFileNameWithoutExtension(f);
-        //                return int.TryParse(fileName, out int num) ? num : int.MaxValue;
-        //            }).ToList();
+        public void ScanFolder2()
+        {
+            if (!string.IsNullOrEmpty(mySharedFolder))
+            {
+                var currentPathInfo = Directory.GetDirectories(mySharedFolder)
+                    .Select(dir => new DirectoryInfo(dir))
+                    .OrderBy(dirInfo => dirInfo.CreationTime)
+                    .FirstOrDefault();
 
-        //        allFiles.ForEach(async file =>
-        //        {
-        //            if (!IsFileAccessible(file))
-        //            {
-        //                return;
-        //            }
 
-        //            if (File.Exists(file))
-        //            {
-        //                var fileName = Path.GetFileName(file);
+                if (currentPathInfo?.FullName == null)
+                {
+                    return;
+                }
 
-        //                var fullPath = Path.Combine("D:\\TestShare", fileName);
+                CurrentSourceFolder = currentPathInfo.Name;
 
-        //                myStopwatch.Restart();
 
-        //                File.Move(file, fullPath);
+                var allFiles = Directory.GetFiles(currentPathInfo.FullName, "*.bmp")
+                    .OrderBy(f =>
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(f);
+                        return int.TryParse(fileName, out int num) ? num : int.MaxValue;
+                    }).ToList();
 
-        //                myStopwatch.Stop();
-        //                Console.WriteLine($@"Move File Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
-        //            }
-        //        });
-        //    }
-        //}
+                List<string> transFiles;
+
+                if (allFiles.Count >= 2)
+                {
+                    transFiles = allFiles.GetRange(0, 2);
+                }
+                else
+                {
+                    transFiles = allFiles;
+                }
+
+                transFiles.ForEach(async file =>
+                {
+                    if (!IsFileAccessible(file))
+                    {
+                        return;
+                    }
+
+                    if (TempImageFiles.Count == 0)
+                    {
+                        myTotalStopwatch.Start();
+                    }
+
+                    if (File.Exists(file))
+                    {
+                        TempImageFiles.Add(file);
+
+                        var fileName = Path.GetFileName(file);
+
+                        var newFolder = $"D:\\TestShare\\{currentPathInfo.Name}";
+
+                        if (!Directory.Exists(newFolder))
+                        {
+                            Directory.CreateDirectory(newFolder);
+                        }
+
+                        var fullPath = Path.Combine(newFolder, fileName);
+
+                        myStopwatch.Restart();
+
+                        File.Move(file, fullPath);
+
+                        myStopwatch.Stop();
+                        Console.WriteLine($@"Move File Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
+                    }
+                });
+            }
+        }
 
         public void CreateArchiveFolder(string dateTime)
         {
