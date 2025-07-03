@@ -71,7 +71,14 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
             Task.Run(async() =>
             {
-                await AiDetector.Initialize();
+                try
+                {
+                    await AiDetector.Initialize();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error: {ex.ToString()}");
+                }
 
                 while (true)
                 {
@@ -79,9 +86,29 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
                     try
                     {
-                        await Task.Run(ScanFolder2);
+                        //await Task.Run(DownloadToTempFolder);
 
                         ScanFolder();
+                    }
+                    catch (Exception ex)
+                    {
+
+                        myLogger.Info(ex.ToString());
+                    }
+
+                    Task.Delay(10).Wait();
+                }
+            });
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    myManualResetEvent.WaitOne();
+
+                    try
+                    {
+                        DownloadToTempFolder();
                     }
                     catch (Exception ex)
                     {
@@ -99,8 +126,10 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
         public void ScanFolder()
         {
             if (!string.IsNullOrEmpty("D:\\TestShare\\"))
+            //if (!string.IsNullOrEmpty(mySharedFolder))
             {
                 var currentPathInfo = Directory.GetDirectories("D:\\TestShare\\")
+                //var currentPathInfo = Directory.GetDirectories(mySharedFolder)
                                     .Select(dir => new DirectoryInfo(dir))
                                     .OrderBy(dirInfo => dirInfo.CreationTime)
                                     .FirstOrDefault();
@@ -319,7 +348,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
             }
         }
 
-        public void ScanFolder2()
+        public void DownloadToTempFolder()
         {
             if (!string.IsNullOrEmpty(mySharedFolder))
             {
@@ -346,9 +375,9 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
 
                 List<string> transFiles;
 
-                if (allFiles.Count >= 2)
+                if (allFiles.Count >= 5)
                 {
-                    transFiles = allFiles.GetRange(0, 2);
+                    transFiles = allFiles.GetRange(0, 5);
                 }
                 else
                 {
@@ -390,6 +419,12 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                         Console.WriteLine($@"Move File Time: {myStopwatch.Elapsed.TotalMilliseconds} milliseconds");
                     }
                 });
+
+                if (TempImageFiles.Count == SectionNumber * ColumnNumber * RowNumber)
+                {
+                    Directory.Delete(currentPathInfo.FullName, true);
+                    TempImageFiles.Clear();
+                }
             }
         }
 
