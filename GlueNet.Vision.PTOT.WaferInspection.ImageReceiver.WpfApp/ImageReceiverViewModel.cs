@@ -116,7 +116,7 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                         myLogger.Info(ex.ToString());
                     }
 
-                    Task.Delay(10).Wait();
+                    Task.Delay(5).Wait();
                 }
             });
 
@@ -373,18 +373,20 @@ namespace GlueNet.Vision.PTOT.WaferInspection.ImageReceiver.WpfApp
                         return int.TryParse(fileName, out int num) ? num : int.MaxValue;
                     }).ToList();
 
-                List<string> transFiles;
+                //List<string> transFiles;
 
-                if (allFiles.Count >= 5)
-                {
-                    transFiles = allFiles.GetRange(0, 5);
-                }
-                else
-                {
-                    transFiles = allFiles;
-                }
+                //var rangeCount = 7;
 
-                transFiles.ForEach(async file =>
+                //if (allFiles.Count >= rangeCount)
+                //{
+                //    transFiles = allFiles.GetRange(0, rangeCount);
+                //}
+                //else
+                //{
+                //    transFiles = allFiles;
+                //}
+
+                allFiles.ForEach(async file =>
                 {
                     if (!IsFileAccessible(file))
                     {
